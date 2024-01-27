@@ -7,11 +7,12 @@ import java.util.Scanner;
  * @Author james Scott
  *
  * @Student sba23056
+ *
+ * To ensure correct outcome please enter Student.txt and Status.txt file paths
  *  Features:
  *  * - Read and manage student information.
  *  * - Display valid and invalid students.
  *  * - Calculate and save student workload.
- *  * - Add new students and edit invalid student details.
  *  * - Provides a user-friendly menu for interaction.
  *  * - Utilizes ArrayLists for student storage.
  *  * - Includes error handling for user input.
@@ -23,20 +24,28 @@ import java.util.Scanner;
  */
 
 public class Main {
-    static String statusPath = "C:\\Users\\35387\\Desktop\\Ca1 main\\class-asignment\\Student-Account\\src\\Status.txt";
-    static String studentPath = "C:\\Users\\35387\\Desktop\\Ca1 main\\class-asignment\\Student-Account\\src\\Student.txt";
 
     public static void main(String[] args) {
+
+        /*
+         * Ensure all paths are corrected for programme implementations
+         * located in Student.java and Utils.java
+         */
+
+
         // Initialize ArrayLists to store valid and invalid student information
         ArrayList<String> validStudents = new ArrayList<>();
         ArrayList<String> invalidStudents = new ArrayList<>();
+
         // Create a Scanner object for user input
         Scanner input = new Scanner(System.in);
 
+       Student.searchForStudentFile(validStudents, invalidStudents);
 
+        // Automatically read student information
+        Student.readStudents(validStudents, invalidStudents);
         // Start the program by invoking the runProgram method from the Menu class
-        Menu.runProgram(validStudents, invalidStudents,input);
-
+        Menu.runProgram(validStudents, invalidStudents, input);
     }
 }
 

@@ -9,13 +9,11 @@ public class Menu {
      * Displays the menu options.
      */
     public static void showMenu() {
-        System.out.println("1. Read Students");
+        System.out.println("1. Show all Students");
         System.out.println("2. Show Valid Students");
         System.out.println("3. Show Invalid Students");
-        System.out.println("4. Save Workload to status.txt");
-        System.out.println("5. Add New Student");
-        System.out.println("6. Edit invalid students");
-        System.out.println("7. Exit");
+        System.out.println("4. Save Valid Students");
+        System.out.println("5. Exit");
     }
     /**
      * Runs the program based on user input.
@@ -32,8 +30,7 @@ public class Menu {
 
             switch (choice) {
                 case 1:
-                    Student.readStudents(validStudents, invalidStudents);
-                    System.out.println("Students read successfully.");
+                    Student.showAllStudents(validStudents,invalidStudents);
                     break;
                 case 2:
                     Student.showStudents(validStudents, "Valid Students");
@@ -42,16 +39,9 @@ public class Menu {
                     Student.showStudents(invalidStudents, "Invalid Students");
                     break;
                 case 4:
-                    Utils.saveWorkload(validStudents);
-                    System.out.println("Workload saved to status.txt.");
+                    Utils.saveValidStudents(validStudents);
                     break;
                 case 5:
-                    Student.addNewStudent(validStudents, invalidStudents);
-                    break;
-                case 6:
-                    Student.editInvalidStudent(invalidStudents);
-                    break;
-                case 7:
                     System.out.println("Exiting program.");
                     System.exit(0);
                     break;

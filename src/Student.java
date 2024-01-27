@@ -1,6 +1,6 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -10,8 +10,8 @@ import java.util.Scanner;
  * Class handling operations related to student information in the Student Account Management System.
  */
 public class Student {
-    // make sure to use relevant txt location
-    static String studentPath = "C:\\Users\\35387\\Desktop\\Ca1 main\\class-asignment\\Student-Account\\src\\Student.txt";
+    // Path to the student file for saving workload replace with own path
+    static String studentPath = "Student.txt";
     /**
      * Displays the list of students with a specified header.
      *
@@ -25,54 +25,36 @@ public class Student {
         }
     }
     /**
-     * Adds a new student to the system, validating input and updating the status file.
+     * Searches for the student.txt file to ensure it exists. If not, provides options to the user.
      *
-     * @param validStudents   List of valid students.
-     * @param invalidStudents List of invalid students.
+     * @param validStudents   List to store valid students.
+     * @param invalidStudents List to store invalid students.
      */
-    public static void addNewStudent(ArrayList<String> validStudents, ArrayList<String> invalidStudents) {
-        Scanner scanner = new Scanner(System.in);
+    public static void searchForStudentFile(ArrayList<String> validStudents, ArrayList<String> invalidStudents) {
+        File file = new File(studentPath);
 
-        System.out.print("Enter the name of the new student: ");
-        String name = scanner.nextLine();
+        // If student.txt file doesn't exist, prompt user with options
+        if (!file.exists()) {
+            System.out.println("student.txt file does not exist.");
 
-        System.out.print("Enter the number of classes for the new student: ");
-        String numClasses = scanner.nextLine();
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("1. Amend the file path to student.txt");
+            System.out.println("2. Exit the program to rewrite the StudentPath correctly");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
 
-        System.out.print("Enter the student ID for the new student: ");
-        String studentId = scanner.nextLine();
-
-        if (Utils.isValidStudentDetails(name, numClasses, studentId)) {
-            String newStudent = name + "\n" + numClasses + "\n" + studentId;
-
-            if (!validStudents.contains(newStudent)) {
-                validStudents.add(newStudent);
-                System.out.println("New student added successfully.");
-                Utils.saveWorkload(validStudents);
-
-                // Append the new student information to student.txt
-                appendToStudentFile(newStudent);
-            } else {
-                System.out.println("Duplicate student. This student is already in the valid students list.");
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter the correct file path to student.txt: ");
+                    studentPath = scanner.next();
+                    break;
+                case 2:
+                    System.out.println("Exiting the program. Please rewrite the StudentPath correctly.");
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Exiting...");
+                    System.exit(0);
             }
-        } else {
-            System.out.println("Invalid student details. The new student is invalid.");
-
-        }
-    }
-    /**
-     * Appends the provided student information to the student.txt file.
-     *
-     * @param studentInfo Information of the new student to append.
-     */
-    private static void appendToStudentFile(String studentInfo) {
-        try (FileWriter writer = new FileWriter(studentPath, true)) {
-            // Append the new student information to the file
-            writer.write(studentInfo);
-            System.out.println("New student added to student.txt.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Error writing to student.txt: " + e.getMessage());
         }
     }
     /**
@@ -85,7 +67,7 @@ public class Student {
         try (BufferedReader reader = new BufferedReader(new FileReader(studentPath))) {
             String name = null;
             String numClasses = null;
-            String studentId = null;
+            String studentId;
 
             String line;
             int lineCount = 0;
@@ -103,84 +85,87 @@ public class Student {
                     case 0:
                         studentId = line;
 
-                        if (Utils.isValidStudentDetails(name, numClasses, studentId)) {
-                            String newStudent = name + "\n" + numClasses + "\n" + studentId;
-
-                            if (!validStudents.contains(newStudent)) {
-                                validStudents.add(newStudent);
-                            } else {
-                                System.out.println("Duplicate student found in student.txt. Ignoring duplicate.");
-                            }
-                        } else {
-                            invalidStudents.add(name + "\n" + numClasses + "\n" + studentId);
-                        }
+                        processStudentData(name, numClasses, studentId, validStudents, invalidStudents);
                         break;
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Processes the data of a single student and adds it to the appropriate list.
+     *
+     * @param name            Name of the student.
+     * @param numClasses      Number of classes the student is enrolled in.
+     * @param studentId       ID of the student.
+     * @param validStudents   List to store valid students.
+     * @param invalidStudents List to store invalid students.
+     */
+    private static void processStudentData(String name, String numClasses, String studentId,
+                                           ArrayList<String> validStudents, ArrayList<String> invalidStudents) {
+        if (Utils.isValidStudentDetails(name, numClasses, studentId)) {
+            String newStudent = name + "\n" + numClasses + "\n" + studentId;
+
+            if (!validStudents.contains(newStudent)) {
+                validStudents.add(newStudent);
+            } else {
+                System.out.println("Duplicate student found in student.txt. Ignoring duplicate.");
+            }
+        } else {
+            invalidStudents.add(name + "\n" + numClasses + "\n" + studentId);
         }
     }
     /**
-     * Allows editing of invalid student information, updating both the list and the student.txt file.
+     * Displays information about all students, including both valid and invalid students.
+     * Shows the list of valid students, the number of valid students, the list of invalid students,
+     * and the number of invalid students.
      *
-     * @param invalidStudents List of invalid students.
+     * @param validStudents   The list of valid student information.
+     * @param invalidStudents The list of invalid student information.
      */
-    static void editInvalidStudent(ArrayList<String> invalidStudents) {
-        Scanner scanner = new Scanner(System.in);
+    public static void showAllStudents(ArrayList<String> validStudents, ArrayList<String> invalidStudents) {
+        System.out.println("All Students:");
 
-        System.out.println("Invalid Students:");
-        for (int i = 0; i < invalidStudents.size(); i++) {
-            System.out.println((i + 1) + ". " + invalidStudents.get(i));
-        }
-
-        System.out.print("Enter the number of the invalid student you want to edit: ");
-        int studentNumber = scanner.nextInt();
-
-        if (studentNumber >= 1 && studentNumber <= invalidStudents.size()) {
-            int index = studentNumber - 1; // Adjust to zero-based index
-
-            System.out.println("Editing invalid student:");
-            System.out.println(invalidStudents.get(index));
-
-            System.out.print("Enter the corrected name: ");
-            String name = scanner.next();
-
-            System.out.print("Enter the corrected number of classes: ");
-            String numClasses = scanner.next();
-
-            System.out.print("Enter the corrected student ID: ");
-            String studentId = scanner.next();
-
-            if (Utils.isValidStudentDetails(name, numClasses, studentId)) {
-                String updatedStudent = name + "\n" + numClasses + "\n" + studentId;
-                invalidStudents.set(index, updatedStudent);
-                System.out.println("Student updated successfully.");
-
-                // Update the student.txt file
-                updateStudentFile(invalidStudents);
-            } else {
-                System.out.println("Invalid student details. No changes made.");
-            }
-        } else {
-            System.out.println("Invalid student number. Please enter a valid number.");
-        }
+        displayValidStudents(validStudents);
+        displayInvalidStudents(invalidStudents);
     }
 
-    private static void updateStudentFile(ArrayList<String> students) {
-        try (FileWriter writer = new FileWriter(studentPath)) {
-            for (String student : students) {
-                // Write each student's information to the file
-                writer.write(student + "\n");
-            }
-            System.out.println("Student.txt updated successfully.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Error updating student.txt: " + e.getMessage());
+    /**
+     * Displays the list of valid students.
+     *
+     * @param validStudents The list of valid student information.
+     */
+    private static void displayValidStudents(ArrayList<String> validStudents) {
+        System.out.println("Valid Students:");
+        showStudents(validStudents);
+        System.out.println("\nNumber of Valid Students: " + validStudents.size());
+    }
+
+    /**
+     * Displays the list of invalid students.
+     *
+     * @param invalidStudents The list of invalid student information.
+     */
+    private static void displayInvalidStudents(ArrayList<String> invalidStudents) {
+        System.out.println("\nInvalid Students:");
+        showStudents(invalidStudents);
+        System.out.println("\nNumber of Invalid Students: " + invalidStudents.size());
+    }
+
+    /**
+     * Displays the list of students.
+     *
+     * @param students The list of student information.
+     */
+    private static void showStudents(ArrayList<String> students) {
+        for (String student : students) {
+            System.out.println(student);
         }
     }
 }
+
 
 
 
